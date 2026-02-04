@@ -1,5 +1,4 @@
 import streamlit as st
-import torch
 from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from langdetect import detect
 
@@ -19,7 +18,6 @@ st.caption("Users can chat in any language. Support replies in English only.")
 # MODEL CONFIG
 # =========================
 MODEL_NAME = "facebook/nllb-200-distilled-600M"
-device = "cuda" if torch.cuda.is_available() else "cpu"
 
 LANG_MAP = {
     "en": "eng_Latn",
@@ -41,7 +39,7 @@ LANG_MAP = {
 def load_model():
     with st.spinner("Loading translation model (first time may take a minute)..."):
         tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-        model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME).to(device)
+        model = AutoModelForSeq2SeqLM.from_pretrained(MODEL_NAME)
     return tokenizer, model
 
 tokenizer, model = load_model()
@@ -57,7 +55,7 @@ def translate(text, src_lang, tgt_lang, max_length=256):
         return_tensors="pt",
         truncation=True,
         max_length=max_length
-    ).to(device)
+    )
 
     outputs = model.generate(
         **inputs,
@@ -112,19 +110,13 @@ if user_input:
         english_text, lang = user_to_english(user_input)
         st.session_state.user_lang = lang
     else:
-        english_text = translate(
-            user_input,
-            st.session_state.user_lang,
-            "en"
-        )
+        english_text = translate(user_input, st.session_state.user_lang, "en")
 
-    # Show user message
     st.session_state.messages.append({
         "role": "user",
         "content": user_input
     })
 
-    # Show English for agent (internal view)
     st.session_state.messages.append({
         "role": "assistant",
         "content": f"**To Agent (English):** {english_text}"
