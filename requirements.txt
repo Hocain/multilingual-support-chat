@@ -1,0 +1,5 @@
+streamlit
+transformers
+langdetect
+sentencepiece
+torch==2.1.0
