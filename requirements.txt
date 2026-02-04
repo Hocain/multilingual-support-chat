@@ -4,4 +4,4 @@ langdetect
 sentencepiece
 
 --extra-index-url https://download.pytorch.org/whl/cpu
-torch==2.1.0
+torch==2.1.0+cpu
